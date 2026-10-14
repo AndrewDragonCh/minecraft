@@ -130,6 +130,11 @@ Spigot Plugins are not compatible with this fork. unless they are optimised for 
 [Purpur Website](https://purpurmc.org/)
 Purpur is a drop-in replacement for Paper servers designed for configurability, and new fun and exciting gameplay features.
 
+### [Leaf](leaf)
+
+[Leaf Website](https://www.leafmc.one/)
+A Paper fork focused on finding the balance between performance, vanilla mechanics, and stability.
+
 ### [Spigot](spigot)
 
 [Spigot Website](https://www.spigotmc.org)
