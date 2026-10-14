@@ -2,7 +2,7 @@ _comment: 'DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PANEL'
 meta:
   version: PLCN_v3
   update_url: null
-exported_at: '2026-10-14T16:19:23+00:00'
+exported_at: '2026-10-14T16:44:22+00:00'
 name: Leaf
 author: andrew@stillfamily.net
 uuid: 96d09b3d-eb32-4e15-8585-c5e2df827265
@@ -48,7 +48,6 @@ scripts:
       # LeafMC API Installation Script
       #
       # Server Files: /mnt/server
-      # Based on the official Paper egg install script, adapted for https://api.leafmc.one
 
       : ${PROJECT:='leaf'}
       : ${API_ENDPOINT:='api.leafmc.one'}
@@ -64,14 +63,11 @@ scripts:
       	echo -e "Using supplied download url: ${DL_PATH}"
       	DOWNLOAD_URL=$(eval echo "$(echo ${DL_PATH} | sed -e 's/{{/${/g' -e 's/}}/}/g')")
       else
-      	# Resolve Minecraft / Leaf version
       	if [ "${MINECRAFT_VERSION}" = "latest" ] || [ -z "${MINECRAFT_VERSION}" ]; then
       		echo -e "Getting latest Leaf version from API..."
       		MINECRAFT_VERSION=$(curl -s "https://${API_ENDPOINT}/v2/projects/${PROJECT}" | jq -r '.versions[-1]')
-      		echo -e "Latest version is ${MINECRAFT_VERSION}"
       	fi
 
-      	# Validate that the requested version exists
       	VER_EXISTS=$(curl -s "https://${API_ENDPOINT}/v2/projects/${PROJECT}" | jq -r --arg VERSION "${MINECRAFT_VERSION}" '.versions | index($VERSION) != null')
 
       	if [ "${VER_EXISTS}" = "true" ]; then
@@ -79,17 +75,13 @@ scripts:
       	else
       		echo -e "Specified version '${MINECRAFT_VERSION}' not found. Defaulting to the latest version."
       		MINECRAFT_VERSION=$(curl -s "https://${API_ENDPOINT}/v2/projects/${PROJECT}" | jq -r '.versions[-1]')
-      		echo -e "Now using ${MINECRAFT_VERSION}"
       	fi
 
-      	# Resolve build number
       	if [ "${BUILD_NUMBER}" = "latest" ] || [ -z "${BUILD_NUMBER}" ]; then
       		echo -e "Getting latest build for ${MINECRAFT_VERSION}..."
       		BUILD_NUMBER=$(curl -s "https://${API_ENDPOINT}/v2/projects/${PROJECT}/versions/${MINECRAFT_VERSION}" | jq -r '.builds[-1]')
-      		echo -e "Latest build is ${BUILD_NUMBER}"
       	fi
 
-      	# Validate that the requested build exists for this version
       	BUILD_EXISTS=$(curl -s "https://${API_ENDPOINT}/v2/projects/${PROJECT}/versions/${MINECRAFT_VERSION}" | jq -r --arg BUILD "${BUILD_NUMBER}" '.builds | map(tostring) | index($BUILD) != null')
 
       	if [ "${BUILD_EXISTS}" = "true" ]; then
@@ -97,7 +89,6 @@ scripts:
       	else
       		echo -e "Specified build '${BUILD_NUMBER}' not found for ${MINECRAFT_VERSION}. Defaulting to latest build."
       		BUILD_NUMBER=$(curl -s "https://${API_ENDPOINT}/v2/projects/${PROJECT}/versions/${MINECRAFT_VERSION}" | jq -r '.builds[-1]')
-      		echo -e "Now using build ${BUILD_NUMBER}"
       	fi
 
       	echo -e "Version being downloaded"
@@ -105,7 +96,6 @@ scripts:
       	echo -e "Version: ${MINECRAFT_VERSION}"
       	echo -e "Build:   ${BUILD_NUMBER}"
 
-      	# Fetch the download filename from the build endpoint
       	JAR_NAME=$(curl -s "https://${API_ENDPOINT}/v2/projects/${PROJECT}/versions/${MINECRAFT_VERSION}/builds/${BUILD_NUMBER}" | jq -r '.downloads.primary.name')
 
       	if [ -z "${JAR_NAME}" ] || [ "${JAR_NAME}" = "null" ]; then
@@ -124,17 +114,10 @@ scripts:
 
       curl -o "${SERVER_JARFILE}" "${DOWNLOAD_URL}"
 
-      if [ ! -f "${SERVER_JARFILE}" ] || [ ! -s "${SERVER_JARFILE}" ]; then
-      	echo -e "ERROR: Failed to download ${SERVER_JARFILE}"
-      	exit 1
-      fi
-
       if [ ! -f server.properties ]; then
       	echo -e "Downloading default MC server.properties"
       	curl -o server.properties https://raw.githubusercontent.com/pelican-eggs/minecraft/refs/heads/main/java/server.properties
       fi
-
-      echo -e "Installation complete."
     container: 'ghcr.io/pelican-eggs/installers:alpine'
     entrypoint: ash
 variables:
